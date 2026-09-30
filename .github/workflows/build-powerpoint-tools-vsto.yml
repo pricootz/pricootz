@@ -22,12 +22,15 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
-      - name: Create temporary VSTO signing certificate
+      - name: Create VSTO signing certificate
         id: cert
         shell: powershell
         run: |
-          $cert = New-SelfSignedCertificate -Type CodeSigningCert -Subject "CN=Pricop PowerPoint Tools Build" -CertStoreLocation "Cert:\CurrentUser\My" -NotAfter (Get-Date).AddYears(3)
+          New-Item -ItemType Directory -Force -Path .\installer\assets | Out-Null
+          $cert = New-SelfSignedCertificate -Type CodeSigningCert -Subject "CN=Pricop PowerPoint Tools" -CertStoreLocation "Cert:\CurrentUser\My" -NotAfter (Get-Date).AddYears(3)
+          Export-Certificate -Cert $cert -FilePath .\installer\assets\publisher.cer | Out-Null
           "thumbprint=$($cert.Thumbprint)" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          ('#define PublisherThumbprint "' + $cert.Thumbprint + '"') | Set-Content .\installer\CertificateInfo.iss
           Write-Host "Created certificate $($cert.Thumbprint)"
 
       - name: Build VSTO add-in
@@ -35,12 +38,26 @@ jobs:
         run: |
           $thumb = "${{ steps.cert.outputs.thumbprint }}"
           msbuild .\src\Pricop.PowerPointTools\Pricop.PowerPointTools.csproj /t:Build /p:Configuration=Release /p:Platform=AnyCPU /p:SignManifests=true /p:ManifestCertificateThumbprint=$thumb /v:minimal
-          Write-Host "=== OUTPUT ==="
+          Write-Host "=== VSTO OUTPUT ==="
           Get-ChildItem .\src\Pricop.PowerPointTools\bin\Release -Recurse | Select-Object FullName,Length
 
-      - name: Upload raw VSTO build
+      - name: Generate installer icon
+        shell: powershell
+        run: .\tools\GenerateAssets.ps1
+
+      - name: Install Inno Setup
+        shell: powershell
+        run: choco install innosetup --no-progress -y
+
+      - name: Build Setup.exe
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory -Force -Path .\dist | Out-Null
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" .\installer\PricopPowerPointTools.iss
+
+      - name: Upload final installer
         uses: actions/upload-artifact@v4
         with:
-          name: PricopPowerPointTools-VSTO-Raw
-          path: powerpoint-tools-vsto/src/Pricop.PowerPointTools/bin/Release/**
+          name: PricopPowerPointTools-VSTO-Setup
+          path: powerpoint-tools-vsto/dist/PricopPowerPointTools-Setup.exe
           if-no-files-found: error
