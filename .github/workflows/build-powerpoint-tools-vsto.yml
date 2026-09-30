@@ -15,16 +15,26 @@ jobs:
     defaults:
       run:
         working-directory: powerpoint-tools-vsto
+
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
+      - name: Create temporary VSTO signing certificate
+        id: cert
+        shell: powershell
+        run: |
+          $cert = New-SelfSignedCertificate -Type CodeSigningCert -Subject "CN=Pricop PowerPoint Tools Build" -CertStoreLocation "Cert:\CurrentUser\My" -NotAfter (Get-Date).AddYears(3)
+          "thumbprint=$($cert.Thumbprint)" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          Write-Host "Created certificate $($cert.Thumbprint)"
+
       - name: Build VSTO add-in
         shell: powershell
         run: |
-          msbuild .\src\Pricop.PowerPointTools\Pricop.PowerPointTools.csproj /t:Build /p:Configuration=Release /p:Platform=AnyCPU /v:minimal
+          $thumb = "${{ steps.cert.outputs.thumbprint }}"
+          msbuild .\src\Pricop.PowerPointTools\Pricop.PowerPointTools.csproj /t:Build /p:Configuration=Release /p:Platform=AnyCPU /p:SignManifests=true /p:ManifestCertificateThumbprint=$thumb /v:minimal
           Write-Host "=== OUTPUT ==="
           Get-ChildItem .\src\Pricop.PowerPointTools\bin\Release -Recurse | Select-Object FullName,Length
 
