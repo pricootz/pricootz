@@ -5,8 +5,8 @@ abstract class PowerPointCommandAction extends SingletonAction {
   protected abstract command: string;
 
   override async onKeyDown(ev: KeyDownEvent): Promise<void> {
-    const ok = await sendPowerPointCommand(this.command);
-    if (ok) {
+    const result = await sendPowerPointCommand(this.command);
+    if (result.ok) {
       await ev.action.showOk();
     } else {
       await ev.action.showAlert();
@@ -109,3 +109,8 @@ export class CleanBoxesAction extends PowerPointCommandAction {
   protected command = "clean-boxes";
 }
 
+
+@action({ UUID: "com.pricop.powerpoint-tools.test-connection" })
+export class TestConnectionAction extends PowerPointCommandAction {
+  protected command = "ping";
+}
