@@ -1,0 +1,36 @@
+name: Build Pricop PowerPoint Tools VSTO
+
+on:
+  push:
+    branches:
+      - agent/powerpoint-tools-vsto
+    paths:
+      - 'powerpoint-tools-vsto/**'
+      - '.github/workflows/build-powerpoint-tools-vsto.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-2022
+    defaults:
+      run:
+        working-directory: powerpoint-tools-vsto
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build VSTO add-in
+        shell: powershell
+        run: |
+          msbuild .\src\Pricop.PowerPointTools\Pricop.PowerPointTools.csproj /t:Build /p:Configuration=Release /p:Platform=AnyCPU /v:minimal
+          Write-Host "=== OUTPUT ==="
+          Get-ChildItem .\src\Pricop.PowerPointTools\bin\Release -Recurse | Select-Object FullName,Length
+
+      - name: Upload raw VSTO build
+        uses: actions/upload-artifact@v4
+        with:
+          name: PricopPowerPointTools-VSTO-Raw
+          path: powerpoint-tools-vsto/src/Pricop.PowerPointTools/bin/Release/**
+          if-no-files-found: error
