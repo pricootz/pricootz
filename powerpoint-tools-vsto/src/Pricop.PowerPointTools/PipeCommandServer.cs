@@ -10,12 +10,15 @@ namespace Pricop.PowerPointTools
 {
     internal sealed class PipeCommandServer : IDisposable
     {
-        public const int Port = 32145;
+        public const int FirstPort = 32145;
+        public const int LastPort = 32154;
+        public int Port { get; private set; }
 
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
         private readonly Thread _thread;
         private readonly Control _dispatcher;
-        private readonly TcpListener _listener;
+        private TcpListener _listener;
+        private readonly string _portPath;
         private readonly string _logPath;
 
         public PipeCommandServer()
@@ -25,11 +28,10 @@ namespace Pricop.PowerPointTools
                 "Pricop", "PowerPointTools", "bridge.log");
 
             Directory.CreateDirectory(Path.GetDirectoryName(_logPath));
+            _portPath = Path.Combine(Path.GetDirectoryName(_logPath), "bridge.port");
 
             _dispatcher = new Control();
             _dispatcher.CreateControl();
-
-            _listener = new TcpListener(IPAddress.Loopback, Port);
 
             _thread = new Thread(ListenLoop)
             {
@@ -42,14 +44,32 @@ namespace Pricop.PowerPointTools
         {
             try
             {
-                _listener.Start();
-                Log("Bridge START TCP 127.0.0.1:" + Port);
-                _thread.Start();
+                Exception lastError = null;
+
+                for (int port = FirstPort; port <= LastPort; port++)
+                {
+                    try
+                    {
+                        var candidate = new TcpListener(IPAddress.Loopback, port);
+                        candidate.Start();
+                        _listener = candidate;
+                        Port = port;
+                        File.WriteAllText(_portPath, port.ToString());
+                        Log("Bridge START TCP 127.0.0.1:" + port);
+                        _thread.Start();
+                        return;
+                    }
+                    catch (Exception ex)
+                    {
+                        lastError = ex;
+                    }
+                }
+
+                Log("Bridge START ERROR: no free local port. " + lastError);
             }
             catch (Exception ex)
             {
                 Log("Bridge START ERROR: " + ex);
-                throw;
             }
         }
 
@@ -61,6 +81,7 @@ namespace Pricop.PowerPointTools
 
                 try
                 {
+                    if (_listener == null) return;
                     client = _listener.AcceptTcpClient();
                     client.ReceiveTimeout = 4000;
                     client.SendTimeout = 4000;
@@ -158,12 +179,13 @@ namespace Pricop.PowerPointTools
             Log("Bridge STOP");
             _cts.Cancel();
 
-            try { _listener.Stop(); } catch { }
+            try { if (_listener != null) _listener.Stop(); } catch { }
+            try { if (File.Exists(_portPath)) File.Delete(_portPath); } catch { }
 
             try
             {
                 using (var client = new TcpClient())
-                    client.Connect(IPAddress.Loopback, Port);
+                    if (Port > 0) client.Connect(IPAddress.Loopback, Port);
             }
             catch { }
 
