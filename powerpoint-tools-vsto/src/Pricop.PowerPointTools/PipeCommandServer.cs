@@ -9,26 +9,26 @@ namespace Pricop.PowerPointTools
 {
     internal sealed class PipeCommandServer : IDisposable
     {
-        private sealed class Request : IDisposable
-        {
-            public readonly string Command;
-            public readonly ManualResetEventSlim Completed = new ManualResetEventSlim(false);
-            public bool Success;
-
-            public Request(string command) { Command = command; }
-            public void Dispose() { Completed.Dispose(); }
-        }
-
         public const string PipeName = "PricopPowerPointTools";
-        private readonly ConcurrentQueue<Request> _requests = new ConcurrentQueue<Request>();
+
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
         private readonly Thread _thread;
-        private readonly System.Windows.Forms.Timer _timer;
+        private readonly Control _dispatcher;
+        private readonly string _logPath;
 
         public PipeCommandServer()
         {
-            _timer = new System.Windows.Forms.Timer { Interval = 30 };
-            _timer.Tick += Timer_Tick;
+            _logPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "Pricop", "PowerPointTools", "bridge.log");
+
+            Directory.CreateDirectory(Path.GetDirectoryName(_logPath));
+
+            // Constructed on the PowerPoint UI thread during ThisAddIn_Startup.
+            // CreateControl gives us a stable Win32 handle so BeginInvoke can marshal
+            // commands back to the Office UI thread.
+            _dispatcher = new Control();
+            _dispatcher.CreateControl();
 
             _thread = new Thread(ListenLoop)
             {
@@ -39,27 +39,8 @@ namespace Pricop.PowerPointTools
 
         public void Start()
         {
-            _timer.Start();
+            Log("Bridge START. Pipe=" + PipeName);
             _thread.Start();
-        }
-
-        private void Timer_Tick(object sender, EventArgs e)
-        {
-            while (_requests.TryDequeue(out var request))
-            {
-                try
-                {
-                    request.Success = PowerPointCommands.Execute(request.Command, false);
-                }
-                catch
-                {
-                    request.Success = false;
-                }
-                finally
-                {
-                    request.Completed.Set();
-                }
-            }
         }
 
         private void ListenLoop()
@@ -71,9 +52,9 @@ namespace Pricop.PowerPointTools
                     using (var server = new NamedPipeServerStream(
                         PipeName,
                         PipeDirection.InOut,
-                        4,
+                        1,
                         PipeTransmissionMode.Byte,
-                        PipeOptions.None))
+                        PipeOptions.Asynchronous))
                     {
                         server.WaitForConnection();
                         if (_cts.IsCancellationRequested) return;
@@ -81,37 +62,87 @@ namespace Pricop.PowerPointTools
                         using (var reader = new StreamReader(server))
                         using (var writer = new StreamWriter(server) { AutoFlush = true })
                         {
-                            var command = reader.ReadLine();
+                            var command = (reader.ReadLine() ?? "").Trim();
+                            Log("RX " + command);
+
                             if (string.IsNullOrWhiteSpace(command))
                             {
-                                writer.WriteLine("ERR");
+                                writer.WriteLine("ERR EMPTY");
                                 continue;
                             }
 
-                            using (var request = new Request(command.Trim()))
+                            if (string.Equals(command, "ping", StringComparison.OrdinalIgnoreCase))
                             {
-                                _requests.Enqueue(request);
-
-                                if (request.Completed.Wait(1500))
-                                    writer.WriteLine(request.Success ? "OK" : "ERR");
-                                else
-                                    writer.WriteLine("TIMEOUT");
+                                writer.WriteLine("OK PONG");
+                                Log("TX OK PONG");
+                                continue;
                             }
+
+                            string response = "ERR INTERNAL";
+                            using (var completed = new ManualResetEventSlim(false))
+                            {
+                                try
+                                {
+                                    _dispatcher.BeginInvoke(new Action(() =>
+                                    {
+                                        try
+                                        {
+                                            bool ok = PowerPointCommands.Execute(command, false);
+                                            response = ok ? "OK" : "ERR COMMAND";
+                                            Log("EXEC " + command + " => " + response);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            response = "ERR " + ex.GetType().Name;
+                                            Log("EXEC ERROR " + command + ": " + ex);
+                                        }
+                                        finally
+                                        {
+                                            completed.Set();
+                                        }
+                                    }));
+
+                                    if (!completed.Wait(2500))
+                                    {
+                                        response = "ERR TIMEOUT";
+                                        Log("TIMEOUT " + command);
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    response = "ERR DISPATCH";
+                                    Log("DISPATCH ERROR " + command + ": " + ex);
+                                }
+                            }
+
+                            writer.WriteLine(response);
+                            Log("TX " + response);
                         }
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
                     if (_cts.IsCancellationRequested) return;
-                    Thread.Sleep(80);
+                    Log("PIPE ERROR: " + ex);
+                    Thread.Sleep(100);
                 }
             }
         }
 
+        private void Log(string message)
+        {
+            try
+            {
+                File.AppendAllText(
+                    _logPath,
+                    DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + " " + message + Environment.NewLine);
+            }
+            catch { }
+        }
+
         public void Dispose()
         {
-            _timer.Stop();
-            _timer.Dispose();
+            Log("Bridge STOP");
             _cts.Cancel();
 
             try
@@ -123,16 +154,11 @@ namespace Pricop.PowerPointTools
 
             try
             {
-                if (_thread.IsAlive) _thread.Join(500);
+                if (_thread.IsAlive) _thread.Join(750);
             }
             catch { }
 
-            while (_requests.TryDequeue(out var request))
-            {
-                request.Success = false;
-                request.Completed.Set();
-            }
-
+            try { _dispatcher.Dispose(); } catch { }
             _cts.Dispose();
         }
     }
