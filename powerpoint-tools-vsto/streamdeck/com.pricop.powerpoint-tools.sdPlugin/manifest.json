@@ -1,0 +1,298 @@
+{
+  "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+  "Name": "Pricop PowerPoint Tools",
+  "Version": "2.0.0.0",
+  "Author": "Pricop",
+  "UUID": "com.pricop.powerpoint-tools",
+  "Description": "Controlli diretti per Pricop PowerPoint Tools in Microsoft PowerPoint.",
+  "Category": "Pricop PowerPoint Tools",
+  "CategoryIcon": "imgs/plugin/category",
+  "Icon": "imgs/plugin/marketplace",
+  "CodePath": "bin/plugin.js",
+  "SDKVersion": 3,
+  "Software": {
+    "MinimumVersion": "7.1"
+  },
+  "OS": [
+    {
+      "Platform": "windows",
+      "MinimumVersion": "10"
+    }
+  ],
+  "Nodejs": {
+    "Version": "24"
+  },
+  "ApplicationsToMonitor": {
+    "windows": [
+      "POWERPNT.EXE"
+    ]
+  },
+  "Actions": [
+    {
+      "Name": "Allinea sinistra",
+      "UUID": "com.pricop.powerpoint-tools.align-left",
+      "Icon": "imgs/actions/align-left",
+      "Tooltip": "Allinea sinistra nella selezione corrente di PowerPoint",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/align-left"
+        }
+      ]
+    },
+    {
+      "Name": "Allinea centro",
+      "UUID": "com.pricop.powerpoint-tools.align-center",
+      "Icon": "imgs/actions/align-center",
+      "Tooltip": "Allinea centro nella selezione corrente di PowerPoint",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/align-center"
+        }
+      ]
+    },
+    {
+      "Name": "Allinea destra",
+      "UUID": "com.pricop.powerpoint-tools.align-right",
+      "Icon": "imgs/actions/align-right",
+      "Tooltip": "Allinea destra nella selezione corrente di PowerPoint",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/align-right"
+        }
+      ]
+    },
+    {
+      "Name": "Allinea alto",
+      "UUID": "com.pricop.powerpoint-tools.align-top",
+      "Icon": "imgs/actions/align-top",
+      "Tooltip": "Allinea alto nella selezione corrente di PowerPoint",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/align-top"
+        }
+      ]
+    },
+    {
+      "Name": "Centra verticale",
+      "UUID": "com.pricop.powerpoint-tools.align-middle",
+      "Icon": "imgs/actions/align-middle",
+      "Tooltip": "Centra verticale nella selezione corrente di PowerPoint",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/align-middle"
+        }
+      ]
+    },
+    {
+      "Name": "Allinea basso",
+      "UUID": "com.pricop.powerpoint-tools.align-bottom",
+      "Icon": "imgs/actions/align-bottom",
+      "Tooltip": "Allinea basso nella selezione corrente di PowerPoint",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/align-bottom"
+        }
+      ]
+    },
+    {
+      "Name": "Distribuisci orizzontale",
+      "UUID": "com.pricop.powerpoint-tools.distribute-horizontal",
+      "Icon": "imgs/actions/distribute-horizontal",
+      "Tooltip": "Distribuisci orizzontale nella selezione corrente di PowerPoint",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/distribute-horizontal"
+        }
+      ]
+    },
+    {
+      "Name": "Distribuisci verticale",
+      "UUID": "com.pricop.powerpoint-tools.distribute-vertical",
+      "Icon": "imgs/actions/distribute-vertical",
+      "Tooltip": "Distribuisci verticale nella selezione corrente di PowerPoint",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/distribute-vertical"
+        }
+      ]
+    },
+    {
+      "Name": "Stessa larghezza",
+      "UUID": "com.pricop.powerpoint-tools.same-width",
+      "Icon": "imgs/actions/same-width",
+      "Tooltip": "Stessa larghezza nella selezione corrente di PowerPoint",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/same-width"
+        }
+      ]
+    },
+    {
+      "Name": "Stessa altezza",
+      "UUID": "com.pricop.powerpoint-tools.same-height",
+      "Icon": "imgs/actions/same-height",
+      "Tooltip": "Stessa altezza nella selezione corrente di PowerPoint",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/same-height"
+        }
+      ]
+    },
+    {
+      "Name": "Stessa dimensione",
+      "UUID": "com.pricop.powerpoint-tools.same-size",
+      "Icon": "imgs/actions/same-size",
+      "Tooltip": "Stessa dimensione nella selezione corrente di PowerPoint",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/same-size"
+        }
+      ]
+    },
+    {
+      "Name": "Rettangolo",
+      "UUID": "com.pricop.powerpoint-tools.rectangle",
+      "Icon": "imgs/actions/rectangle",
+      "Tooltip": "Rettangolo nella selezione corrente di PowerPoint",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/rectangle"
+        }
+      ]
+    },
+    {
+      "Name": "Arrotondato",
+      "UUID": "com.pricop.powerpoint-tools.rounded-rectangle",
+      "Icon": "imgs/actions/rounded-rectangle",
+      "Tooltip": "Arrotondato nella selezione corrente di PowerPoint",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/rounded-rectangle"
+        }
+      ]
+    },
+    {
+      "Name": "Ombra OFF",
+      "UUID": "com.pricop.powerpoint-tools.shadow-off",
+      "Icon": "imgs/actions/shadow-off",
+      "Tooltip": "Ombra OFF nella selezione corrente di PowerPoint",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/shadow-off"
+        }
+      ]
+    },
+    {
+      "Name": "Ombra ON",
+      "UUID": "com.pricop.powerpoint-tools.shadow-on",
+      "Icon": "imgs/actions/shadow-on",
+      "Tooltip": "Ombra ON nella selezione corrente di PowerPoint",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/shadow-on"
+        }
+      ]
+    },
+    {
+      "Name": "Bordo OFF",
+      "UUID": "com.pricop.powerpoint-tools.border-off",
+      "Icon": "imgs/actions/border-off",
+      "Tooltip": "Bordo OFF nella selezione corrente di PowerPoint",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/border-off"
+        }
+      ]
+    },
+    {
+      "Name": "Bordo ON",
+      "UUID": "com.pricop.powerpoint-tools.border-on",
+      "Icon": "imgs/actions/border-on",
+      "Tooltip": "Bordo ON nella selezione corrente di PowerPoint",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/border-on"
+        }
+      ]
+    },
+    {
+      "Name": "Copia stile",
+      "UUID": "com.pricop.powerpoint-tools.match-style",
+      "Icon": "imgs/actions/match-style",
+      "Tooltip": "Copia stile nella selezione corrente di PowerPoint",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/match-style"
+        }
+      ]
+    },
+    {
+      "Name": "Clean boxes",
+      "UUID": "com.pricop.powerpoint-tools.clean-boxes",
+      "Icon": "imgs/actions/clean-boxes",
+      "Tooltip": "Clean boxes nella selezione corrente di PowerPoint",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/clean-boxes"
+        }
+      ]
+    }
+  ]
+}
