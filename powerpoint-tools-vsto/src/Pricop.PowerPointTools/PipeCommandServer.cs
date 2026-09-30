@@ -23,11 +23,11 @@ namespace Pricop.PowerPointTools
         private readonly ConcurrentQueue<Request> _requests = new ConcurrentQueue<Request>();
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
         private readonly Thread _thread;
-        private readonly Timer _timer;
+        private readonly System.Windows.Forms.Timer _timer;
 
         public PipeCommandServer()
         {
-            _timer = new Timer { Interval = 30 };
+            _timer = new System.Windows.Forms.Timer { Interval = 30 };
             _timer.Tick += Timer_Tick;
 
             _thread = new Thread(ListenLoop)
