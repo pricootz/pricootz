@@ -55,9 +55,31 @@ jobs:
           New-Item -ItemType Directory -Force -Path .\dist | Out-Null
           & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" .\installer\PricopPowerPointTools.iss
 
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Build Stream Deck plugin
+        shell: powershell
+        working-directory: powerpoint-tools-vsto/streamdeck
+        run: |
+          npm install
+          npm run build
+          npm install -g @elgato/cli@latest
+          New-Item -ItemType Directory -Force -Path .\dist | Out-Null
+          streamdeck pack .\com.pricop.powerpoint-tools.sdPlugin --output .\dist --force --no-update-check
+
       - name: Upload final installer
         uses: actions/upload-artifact@v4
         with:
           name: PricopPowerPointTools-VSTO-Setup
           path: powerpoint-tools-vsto/dist/PricopPowerPointTools-Setup.exe
+          if-no-files-found: error
+
+      - name: Upload Stream Deck plugin
+        uses: actions/upload-artifact@v4
+        with:
+          name: PricopPowerPointTools-StreamDeck
+          path: powerpoint-tools-vsto/streamdeck/dist/*.streamDeckPlugin
           if-no-files-found: error
