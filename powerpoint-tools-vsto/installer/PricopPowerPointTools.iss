@@ -63,17 +63,17 @@ Filename: "{sys}\certutil.exe"; Parameters: "-delstore TrustedPublisher {#Publis
 
 [Code]
 procedure RemoveOldComAddin();
+var
+  ResultCode: Integer;
 begin
-  SetRegView(32);
-  RegDeleteKeyIncludingSubkeys(HKEY_CURRENT_USER, 'Software\Microsoft\Office\PowerPoint\Addins\Pricop.PowerPointTools');
-  RegDeleteKeyIncludingSubkeys(HKEY_CURRENT_USER, 'Software\Classes\Pricop.PowerPointTools');
-  RegDeleteKeyIncludingSubkeys(HKEY_CURRENT_USER, 'Software\Classes\CLSID\{1D8EA74E-3C7F-4DA2-BE72-5C4FCF17A061}');
+  Exec('reg.exe', 'delete "HKCU\Software\Microsoft\Office\PowerPoint\Addins\Pricop.PowerPointTools" /f /reg:32', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  Exec('reg.exe', 'delete "HKCU\Software\Classes\Pricop.PowerPointTools" /f /reg:32', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  Exec('reg.exe', 'delete "HKCU\Software\Classes\CLSID\{1D8EA74E-3C7F-4DA2-BE72-5C4FCF17A061}" /f /reg:32', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
   if IsWin64 then
   begin
-    SetRegView(64);
-    RegDeleteKeyIncludingSubkeys(HKEY_CURRENT_USER, 'Software\Microsoft\Office\PowerPoint\Addins\Pricop.PowerPointTools');
-    RegDeleteKeyIncludingSubkeys(HKEY_CURRENT_USER, 'Software\Classes\Pricop.PowerPointTools');
-    RegDeleteKeyIncludingSubkeys(HKEY_CURRENT_USER, 'Software\Classes\CLSID\{1D8EA74E-3C7F-4DA2-BE72-5C4FCF17A061}');
+    Exec('reg.exe', 'delete "HKCU\Software\Microsoft\Office\PowerPoint\Addins\Pricop.PowerPointTools" /f /reg:64', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+    Exec('reg.exe', 'delete "HKCU\Software\Classes\Pricop.PowerPointTools" /f /reg:64', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+    Exec('reg.exe', 'delete "HKCU\Software\Classes\CLSID\{1D8EA74E-3C7F-4DA2-BE72-5C4FCF17A061}" /f /reg:64', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
   end;
 end;
 
