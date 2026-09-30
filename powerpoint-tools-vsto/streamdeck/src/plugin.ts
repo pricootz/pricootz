@@ -19,6 +19,7 @@ import {
   BorderOnAction,
   MatchStyleAction,
   CleanBoxesAction,
+  TestConnectionAction,
 } from "./actions/powerpoint-actions.js";
 
 streamDeck.logger.setLevel("info");
@@ -42,5 +43,6 @@ streamDeck.actions.registerAction(new BorderOffAction());
 streamDeck.actions.registerAction(new BorderOnAction());
 streamDeck.actions.registerAction(new MatchStyleAction());
 streamDeck.actions.registerAction(new CleanBoxesAction());
+streamDeck.actions.registerAction(new TestConnectionAction());
 
 streamDeck.connect();
