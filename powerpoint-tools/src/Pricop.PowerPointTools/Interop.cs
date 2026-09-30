@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace Pricop.PowerPointTools
 {
-    internal enum ExtConnectMode
+    public enum ExtConnectMode
     {
         ext_cm_AfterStartup = 0,
         ext_cm_Startup = 1,
@@ -13,7 +13,7 @@ namespace Pricop.PowerPointTools
         ext_cm_UISetup = 5
     }
 
-    internal enum ExtDisconnectMode
+    public enum ExtDisconnectMode
     {
         ext_dm_HostShutdown = 0,
         ext_dm_UserClosed = 1,
@@ -24,7 +24,7 @@ namespace Pricop.PowerPointTools
     [ComImport]
     [Guid("B65AD801-ABAF-11D0-BB8B-00A0C90F2744")]
     [InterfaceType(ComInterfaceType.InterfaceIsDual)]
-    internal interface IDTExtensibility2
+    public interface IDTExtensibility2
     {
         void OnConnection([MarshalAs(UnmanagedType.IDispatch)] object Application, ExtConnectMode ConnectMode,
             [MarshalAs(UnmanagedType.IDispatch)] object AddInInst, ref Array custom);
@@ -37,7 +37,7 @@ namespace Pricop.PowerPointTools
     [ComImport]
     [Guid("000C0396-0000-0000-C000-000000000046")]
     [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-    internal interface IRibbonExtensibility
+    public interface IRibbonExtensibility
     {
         [return: MarshalAs(UnmanagedType.BStr)]
         string GetCustomUI([MarshalAs(UnmanagedType.BStr)] string RibbonID);
