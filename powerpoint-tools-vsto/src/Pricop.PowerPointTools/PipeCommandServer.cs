@@ -9,15 +9,25 @@ namespace Pricop.PowerPointTools
 {
     internal sealed class PipeCommandServer : IDisposable
     {
+        private sealed class Request : IDisposable
+        {
+            public readonly string Command;
+            public readonly ManualResetEventSlim Completed = new ManualResetEventSlim(false);
+            public bool Success;
+
+            public Request(string command) { Command = command; }
+            public void Dispose() { Completed.Dispose(); }
+        }
+
         public const string PipeName = "PricopPowerPointTools";
-        private readonly ConcurrentQueue<string> _commands = new ConcurrentQueue<string>();
+        private readonly ConcurrentQueue<Request> _requests = new ConcurrentQueue<Request>();
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
         private readonly Thread _thread;
         private readonly Timer _timer;
 
         public PipeCommandServer()
         {
-            _timer = new Timer { Interval = 40 };
+            _timer = new Timer { Interval = 30 };
             _timer.Tick += Timer_Tick;
 
             _thread = new Thread(ListenLoop)
@@ -35,8 +45,21 @@ namespace Pricop.PowerPointTools
 
         private void Timer_Tick(object sender, EventArgs e)
         {
-            while (_commands.TryDequeue(out var command))
-                PowerPointCommands.Execute(command, false);
+            while (_requests.TryDequeue(out var request))
+            {
+                try
+                {
+                    request.Success = PowerPointCommands.Execute(request.Command, false);
+                }
+                catch
+                {
+                    request.Success = false;
+                }
+                finally
+                {
+                    request.Completed.Set();
+                }
+            }
         }
 
         private void ListenLoop()
@@ -48,7 +71,7 @@ namespace Pricop.PowerPointTools
                     using (var server = new NamedPipeServerStream(
                         PipeName,
                         PipeDirection.InOut,
-                        1,
+                        4,
                         PipeTransmissionMode.Byte,
                         PipeOptions.None))
                     {
@@ -59,14 +82,20 @@ namespace Pricop.PowerPointTools
                         using (var writer = new StreamWriter(server) { AutoFlush = true })
                         {
                             var command = reader.ReadLine();
-                            if (!string.IsNullOrWhiteSpace(command))
-                            {
-                                _commands.Enqueue(command.Trim());
-                                writer.WriteLine("OK");
-                            }
-                            else
+                            if (string.IsNullOrWhiteSpace(command))
                             {
                                 writer.WriteLine("ERR");
+                                continue;
+                            }
+
+                            using (var request = new Request(command.Trim()))
+                            {
+                                _requests.Enqueue(request);
+
+                                if (request.Completed.Wait(1500))
+                                    writer.WriteLine(request.Success ? "OK" : "ERR");
+                                else
+                                    writer.WriteLine("TIMEOUT");
                             }
                         }
                     }
@@ -74,7 +103,7 @@ namespace Pricop.PowerPointTools
                 catch
                 {
                     if (_cts.IsCancellationRequested) return;
-                    Thread.Sleep(100);
+                    Thread.Sleep(80);
                 }
             }
         }
@@ -88,9 +117,7 @@ namespace Pricop.PowerPointTools
             try
             {
                 using (var client = new NamedPipeClientStream(".", PipeName, PipeDirection.Out))
-                {
                     client.Connect(100);
-                }
             }
             catch { }
 
@@ -99,6 +126,12 @@ namespace Pricop.PowerPointTools
                 if (_thread.IsAlive) _thread.Join(500);
             }
             catch { }
+
+            while (_requests.TryDequeue(out var request))
+            {
+                request.Success = false;
+                request.Completed.Set();
+            }
 
             _cts.Dispose();
         }
