@@ -4,8 +4,22 @@ namespace Pricop.PowerPointTools
 {
     public partial class ThisAddIn
     {
-        private void ThisAddIn_Startup(object sender, System.EventArgs e) { }
-        private void ThisAddIn_Shutdown(object sender, System.EventArgs e) { }
+        private PipeCommandServer _pipeServer;
+
+        private void ThisAddIn_Startup(object sender, System.EventArgs e)
+        {
+            _pipeServer = new PipeCommandServer();
+            _pipeServer.Start();
+        }
+
+        private void ThisAddIn_Shutdown(object sender, System.EventArgs e)
+        {
+            if (_pipeServer != null)
+            {
+                _pipeServer.Dispose();
+                _pipeServer = null;
+            }
+        }
 
         protected override Office.IRibbonExtensibility CreateRibbonExtensibilityObject()
         {
