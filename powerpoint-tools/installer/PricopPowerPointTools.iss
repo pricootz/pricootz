@@ -1,5 +1,5 @@
 #define MyAppName "Pricop PowerPoint Tools"
-#define MyAppVersion "1.0.0"
+#define MyAppVersion "1.0.1"
 #define MyAppPublisher "Pricop"
 #define MyAppId "{{A8A9B27F-58F2-4CC5-ACD8-CF4AE4551399}"
 
@@ -8,9 +8,9 @@ AppId={#MyAppId}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
-DefaultDirName={localappdata}\Pricop\PowerPointTools
+DefaultDirName={autopf}\Pricop\PowerPointTools
 DisableProgramGroupPage=yes
-PrivilegesRequired=lowest
+PrivilegesRequired=admin
 OutputDir=..\dist
 OutputBaseFilename=PricopPowerPointTools-Setup
 Compression=lzma2
@@ -21,7 +21,7 @@ UninstallDisplayIcon={app}\app.ico
 ArchitecturesAllowed=x86 x64compatible
 CloseApplications=yes
 RestartApplications=no
-VersionInfoVersion=1.0.0.0
+VersionInfoVersion=1.0.1.0
 VersionInfoCompany=Pricop
 VersionInfoDescription=Pricop PowerPoint Tools Installer
 VersionInfoProductName=Pricop PowerPoint Tools
@@ -31,33 +31,23 @@ Source: "..\src\Pricop.PowerPointTools\bin\Release\net48\Pricop.PowerPointTools.
 Source: "assets\app.ico"; DestDir: "{app}"; Flags: ignoreversion
 
 [Registry]
-Root: HKCU64; Subkey: "Software\Classes\CLSID\{{1D8EA74E-3C7F-4DA2-BE72-5C4FCF17A061}"; ValueType: string; ValueData: "Pricop PowerPoint Tools"; Flags: uninsdeletekey
-Root: HKCU64; Subkey: "Software\Classes\CLSID\{{1D8EA74E-3C7F-4DA2-BE72-5C4FCF17A061}\InprocServer32"; ValueType: string; ValueData: "mscoree.dll"
-Root: HKCU64; Subkey: "Software\Classes\CLSID\{{1D8EA74E-3C7F-4DA2-BE72-5C4FCF17A061}\InprocServer32"; ValueName: "ThreadingModel"; ValueType: string; ValueData: "Both"
-Root: HKCU64; Subkey: "Software\Classes\CLSID\{{1D8EA74E-3C7F-4DA2-BE72-5C4FCF17A061}\InprocServer32"; ValueName: "Class"; ValueType: string; ValueData: "Pricop.PowerPointTools.Connect"
-Root: HKCU64; Subkey: "Software\Classes\CLSID\{{1D8EA74E-3C7F-4DA2-BE72-5C4FCF17A061}\InprocServer32"; ValueName: "Assembly"; ValueType: string; ValueData: "Pricop.PowerPointTools, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
-Root: HKCU64; Subkey: "Software\Classes\CLSID\{{1D8EA74E-3C7F-4DA2-BE72-5C4FCF17A061}\InprocServer32"; ValueName: "RuntimeVersion"; ValueType: string; ValueData: "v4.0.30319"
-Root: HKCU64; Subkey: "Software\Classes\CLSID\{{1D8EA74E-3C7F-4DA2-BE72-5C4FCF17A061}\InprocServer32"; ValueName: "CodeBase"; ValueType: string; ValueData: "file:///{app}\Pricop.PowerPointTools.dll"
-Root: HKCU64; Subkey: "Software\Classes\Pricop.PowerPointTools"; ValueType: string; ValueData: "Pricop PowerPoint Tools"; Flags: uninsdeletekey
-Root: HKCU64; Subkey: "Software\Classes\Pricop.PowerPointTools\CLSID"; ValueType: string; ValueData: "{{1D8EA74E-3C7F-4DA2-BE72-5C4FCF17A061}"
-
-Root: HKCU32; Subkey: "Software\Classes\CLSID\{{1D8EA74E-3C7F-4DA2-BE72-5C4FCF17A061}"; ValueType: string; ValueData: "Pricop PowerPoint Tools"; Flags: uninsdeletekey
-Root: HKCU32; Subkey: "Software\Classes\CLSID\{{1D8EA74E-3C7F-4DA2-BE72-5C4FCF17A061}\InprocServer32"; ValueType: string; ValueData: "mscoree.dll"
-Root: HKCU32; Subkey: "Software\Classes\CLSID\{{1D8EA74E-3C7F-4DA2-BE72-5C4FCF17A061}\InprocServer32"; ValueName: "ThreadingModel"; ValueType: string; ValueData: "Both"
-Root: HKCU32; Subkey: "Software\Classes\CLSID\{{1D8EA74E-3C7F-4DA2-BE72-5C4FCF17A061}\InprocServer32"; ValueName: "Class"; ValueType: string; ValueData: "Pricop.PowerPointTools.Connect"
-Root: HKCU32; Subkey: "Software\Classes\CLSID\{{1D8EA74E-3C7F-4DA2-BE72-5C4FCF17A061}\InprocServer32"; ValueName: "Assembly"; ValueType: string; ValueData: "Pricop.PowerPointTools, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
-Root: HKCU32; Subkey: "Software\Classes\CLSID\{{1D8EA74E-3C7F-4DA2-BE72-5C4FCF17A061}\InprocServer32"; ValueName: "RuntimeVersion"; ValueType: string; ValueData: "v4.0.30319"
-Root: HKCU32; Subkey: "Software\Classes\CLSID\{{1D8EA74E-3C7F-4DA2-BE72-5C4FCF17A061}\InprocServer32"; ValueName: "CodeBase"; ValueType: string; ValueData: "file:///{app}\Pricop.PowerPointTools.dll"
-Root: HKCU32; Subkey: "Software\Classes\Pricop.PowerPointTools"; ValueType: string; ValueData: "Pricop PowerPoint Tools"; Flags: uninsdeletekey
-Root: HKCU32; Subkey: "Software\Classes\Pricop.PowerPointTools\CLSID"; ValueType: string; ValueData: "{{1D8EA74E-3C7F-4DA2-BE72-5C4FCF17A061}"
-
-Root: HKCU64; Subkey: "Software\Microsoft\Office\PowerPoint\Addins\Pricop.PowerPointTools"; ValueType: string; ValueName: "FriendlyName"; ValueData: "Pricop PowerPoint Tools"; Flags: uninsdeletekey
-Root: HKCU64; Subkey: "Software\Microsoft\Office\PowerPoint\Addins\Pricop.PowerPointTools"; ValueType: string; ValueName: "Description"; ValueData: "Productivity tools for PowerPoint"
-Root: HKCU64; Subkey: "Software\Microsoft\Office\PowerPoint\Addins\Pricop.PowerPointTools"; ValueType: dword; ValueName: "LoadBehavior"; ValueData: "3"
-
+; Office add-in registration. Write both views on 64-bit Windows.
 Root: HKCU32; Subkey: "Software\Microsoft\Office\PowerPoint\Addins\Pricop.PowerPointTools"; ValueType: string; ValueName: "FriendlyName"; ValueData: "Pricop PowerPoint Tools"; Flags: uninsdeletekey
 Root: HKCU32; Subkey: "Software\Microsoft\Office\PowerPoint\Addins\Pricop.PowerPointTools"; ValueType: string; ValueName: "Description"; ValueData: "Productivity tools for PowerPoint"
 Root: HKCU32; Subkey: "Software\Microsoft\Office\PowerPoint\Addins\Pricop.PowerPointTools"; ValueType: dword; ValueName: "LoadBehavior"; ValueData: "3"
+
+Root: HKCU64; Subkey: "Software\Microsoft\Office\PowerPoint\Addins\Pricop.PowerPointTools"; ValueType: string; ValueName: "FriendlyName"; ValueData: "Pricop PowerPoint Tools"; Flags: uninsdeletekey; Check: IsWin64
+Root: HKCU64; Subkey: "Software\Microsoft\Office\PowerPoint\Addins\Pricop.PowerPointTools"; ValueType: string; ValueName: "Description"; ValueData: "Productivity tools for PowerPoint"; Check: IsWin64
+Root: HKCU64; Subkey: "Software\Microsoft\Office\PowerPoint\Addins\Pricop.PowerPointTools"; ValueType: dword; ValueName: "LoadBehavior"; ValueData: "3"; Check: IsWin64
+
+[Run]
+; Use Microsoft's real .NET COM registration instead of hand-written CLSID keys.
+Filename: "{win}\Microsoft.NET\Framework\v4.0.30319\RegAsm.exe"; Parameters: """{app}\Pricop.PowerPointTools.dll"" /codebase"; Flags: runhidden waituntilterminated
+Filename: "{win}\Microsoft.NET\Framework64\v4.0.30319\RegAsm.exe"; Parameters: """{app}\Pricop.PowerPointTools.dll"" /codebase"; Flags: runhidden waituntilterminated; Check: IsWin64
+
+[UninstallRun]
+Filename: "{win}\Microsoft.NET\Framework64\v4.0.30319\RegAsm.exe"; Parameters: """{app}\Pricop.PowerPointTools.dll"" /unregister"; Flags: runhidden waituntilterminated; Check: IsWin64
+Filename: "{win}\Microsoft.NET\Framework\v4.0.30319\RegAsm.exe"; Parameters: """{app}\Pricop.PowerPointTools.dll"" /unregister"; Flags: runhidden waituntilterminated
 
 [Code]
 procedure CurStepChanged(CurStep: TSetupStep);
