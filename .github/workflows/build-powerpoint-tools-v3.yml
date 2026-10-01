@@ -49,8 +49,8 @@ jobs:
           & $helper self-test
           if ($LASTEXITCODE -ne 0) { throw "Helper self-test failed with exit code $LASTEXITCODE" }
 
-          & $helper test-connection
-          if ($LASTEXITCODE -ne 2) { throw "Expected POWERPOINT_NOT_FOUND on clean runner, got $LASTEXITCODE" }
+          $probe = Start-Process -FilePath $helper -ArgumentList "test-connection" -Wait -PassThru -NoNewWindow
+          if ($probe.ExitCode -ne 2) { throw "Expected POWERPOINT_NOT_FOUND on clean runner, got $($probe.ExitCode)" }
 
       - name: Generate installer icon
         shell: powershell
