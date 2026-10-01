@@ -1,18 +1,18 @@
 {
   "name": "pricop-powerpoint-tools-streamdeck",
-  "version": "2.2.0",
+  "version": "3.0.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc --noEmit && esbuild src/plugin.ts --bundle --platform=node --format=esm --target=node24 --outfile=com.pricop.powerpoint-tools.sdPlugin/bin/plugin.js",
+    "build": "tsc --noEmit && esbuild src/plugin.ts --bundle --platform=node --format=esm --target=node20 --outfile=com.pricop.powerpoint-tools.sdPlugin/bin/plugin.js",
     "pack": "streamdeck pack com.pricop.powerpoint-tools.sdPlugin --output dist --force --no-update-check"
   },
   "dependencies": {
-    "@elgato/streamdeck": "^3.0.0"
+    "@elgato/streamdeck": "^2.0.0"
   },
   "devDependencies": {
     "esbuild": "^0.25.0",
     "typescript": "^5.9.0",
-    "@types/node": "^24.0.0"
+    "@types/node": "^20.0.0"
   }
 }
