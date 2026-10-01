@@ -4,22 +4,14 @@ namespace Pricop.PowerPointTools
 {
     public partial class ThisAddIn
     {
-        private PipeCommandServer _pipeServer;
-
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
-            _pipeServer = new PipeCommandServer();
-            _pipeServer.Start();
+            // Stream Deck no longer depends on an in-process bridge.
+            // The Ribbon remains a normal VSTO add-in; Stream Deck uses its own
+            // direct COM helper for maximum reliability.
         }
 
-        private void ThisAddIn_Shutdown(object sender, System.EventArgs e)
-        {
-            if (_pipeServer != null)
-            {
-                _pipeServer.Dispose();
-                _pipeServer = null;
-            }
-        }
+        private void ThisAddIn_Shutdown(object sender, System.EventArgs e) { }
 
         protected override Office.IRibbonExtensibility CreateRibbonExtensibilityObject()
         {
