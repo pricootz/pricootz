@@ -1,17 +1,17 @@
 {
   "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
   "Name": "Pricop PowerPoint Tools",
-  "Version": "3.0.0.0",
+  "Version": "4.0.0.0",
   "Author": "Pricop",
   "UUID": "com.pricop.powerpoint-tools",
-  "Description": "Controlli diretti per Microsoft PowerPoint 365 tramite helper Windows locale.",
+  "Description": "Plugin Windows nativo per controllare direttamente Microsoft PowerPoint 365 da Stream Deck.",
   "Category": "Pricop PowerPoint Tools",
   "CategoryIcon": "imgs/plugin/category",
   "Icon": "imgs/plugin/marketplace",
-  "CodePath": "bin/plugin.js",
+  "CodePath": "bin/Pricop.PowerPointTools.StreamDeck.exe",
   "SDKVersion": 2,
   "Software": {
-    "MinimumVersion": "6.6"
+    "MinimumVersion": "6.4"
   },
   "OS": [
     {
@@ -19,9 +19,6 @@
       "MinimumVersion": "10"
     }
   ],
-  "Nodejs": {
-    "Version": "20"
-  },
   "Actions": [
     {
       "Name": "Allinea sinistra",
@@ -293,7 +290,7 @@
       "Name": "Test PowerPoint",
       "UUID": "com.pricop.powerpoint-tools.test-connection",
       "Icon": "imgs/actions/test-connection",
-      "Tooltip": "Verifica direttamente che Stream Deck riesca ad agganciarsi a PowerPoint",
+      "Tooltip": "Verifica il collegamento nativo diretto a Microsoft PowerPoint",
       "Controllers": [
         "Keypad"
       ],
