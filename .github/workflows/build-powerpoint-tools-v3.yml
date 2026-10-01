@@ -1,0 +1,115 @@
+name: Build Pricop PowerPoint Tools v3
+
+on:
+  push:
+    branches:
+      - agent/powerpoint-tools-v3-helper
+    paths:
+      - 'powerpoint-tools-vsto/**'
+      - '.github/workflows/build-powerpoint-tools-v3.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-2022
+    defaults:
+      run:
+        working-directory: powerpoint-tools-vsto
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Create VSTO signing certificate
+        id: cert
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory -Force -Path .\installer\assets | Out-Null
+          $cert = New-SelfSignedCertificate -Type CodeSigningCert -Subject "CN=Pricop PowerPoint Tools" -CertStoreLocation "Cert:\CurrentUser\My" -NotAfter (Get-Date).AddYears(3)
+          Export-Certificate -Cert $cert -FilePath .\installer\assets\publisher.cer | Out-Null
+          "thumbprint=$($cert.Thumbprint)" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          ('#define PublisherThumbprint "' + $cert.Thumbprint + '"') | Set-Content .\installer\CertificateInfo.iss
+
+      - name: Build VSTO add-in
+        shell: powershell
+        run: |
+          $thumb = "${{ steps.cert.outputs.thumbprint }}"
+          msbuild .\src\Pricop.PowerPointTools\Pricop.PowerPointTools.csproj /t:Build /p:Configuration=Release /p:Platform=AnyCPU /p:SignManifests=true /p:ManifestCertificateThumbprint=$thumb /v:minimal
+          if (!(Test-Path .\src\Pricop.PowerPointTools\bin\Release\Pricop.PowerPointTools.vsto)) { throw "VSTO manifest missing" }
+
+      - name: Build direct PowerPoint helper
+        shell: powershell
+        run: |
+          msbuild .\streamdeck-helper\Pricop.PowerPointTools.Helper.csproj /t:Restore,Build /p:Configuration=Release /v:minimal
+          $helper = ".\streamdeck-helper\bin\Release\net48\Pricop.PowerPointTools.Helper.exe"
+          if (!(Test-Path $helper)) { throw "Helper EXE missing" }
+
+          & $helper self-test
+          if ($LASTEXITCODE -ne 0) { throw "Helper self-test failed with exit code $LASTEXITCODE" }
+
+          & $helper test-connection
+          if ($LASTEXITCODE -ne 2) { throw "Expected POWERPOINT_NOT_FOUND on clean runner, got $LASTEXITCODE" }
+
+      - name: Generate installer icon
+        shell: powershell
+        run: .\tools\GenerateAssets.ps1
+
+      - name: Install Inno Setup
+        shell: powershell
+        run: choco install innosetup --no-progress -y
+
+      - name: Build PowerPoint Setup.exe
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory -Force -Path .\dist | Out-Null
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" .\installer\PricopPowerPointTools.iss
+          if (!(Test-Path .\dist\PricopPowerPointTools-Setup.exe)) { throw "Setup.exe missing" }
+
+      - name: Setup Node for Stream Deck build tooling
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Build classic-compatible Stream Deck plugin
+        shell: powershell
+        working-directory: powerpoint-tools-vsto/streamdeck
+        run: |
+          npm install
+          npm run build
+          .\scripts\GeneratePluginIcons.ps1
+
+          $helperSource = "..\streamdeck-helper\bin\Release\net48\Pricop.PowerPointTools.Helper.exe"
+          $helperDest = ".\com.pricop.powerpoint-tools.sdPlugin\bin\Pricop.PowerPointTools.Helper.exe"
+          Copy-Item $helperSource $helperDest -Force
+
+          if (!(Test-Path $helperDest)) { throw "Helper was not copied into plugin bundle" }
+
+          npm install -g @elgato/cli@latest
+          New-Item -ItemType Directory -Force -Path .\dist | Out-Null
+          streamdeck pack .\com.pricop.powerpoint-tools.sdPlugin --output .\dist --force --no-update-check
+
+          $plugin = Get-ChildItem .\dist\*.streamDeckPlugin | Select-Object -First 1
+          if ($null -eq $plugin) { throw "streamDeckPlugin package missing" }
+
+          Copy-Item $plugin.FullName ".\dist\plugin-check.zip" -Force
+          Expand-Archive ".\dist\plugin-check.zip" ".\dist\plugin-check" -Force
+          $packedHelper = Get-ChildItem ".\dist\plugin-check" -Recurse -Filter "Pricop.PowerPointTools.Helper.exe" | Select-Object -First 1
+          if ($null -eq $packedHelper) { throw "Packed plugin does not contain helper EXE" }
+          Remove-Item ".\dist\plugin-check.zip" -Force
+          Remove-Item ".\dist\plugin-check" -Recurse -Force
+
+      - name: Upload PowerPoint installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: PricopPowerPointTools-V3-Setup
+          path: powerpoint-tools-vsto/dist/PricopPowerPointTools-Setup.exe
+          if-no-files-found: error
+
+      - name: Upload Stream Deck plugin
+        uses: actions/upload-artifact@v4
+        with:
+          name: PricopPowerPointTools-V3-StreamDeck
+          path: powerpoint-tools-vsto/streamdeck/dist/*.streamDeckPlugin
+          if-no-files-found: error
