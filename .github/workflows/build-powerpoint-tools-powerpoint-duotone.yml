@@ -1,0 +1,64 @@
+name: Build Pricop PowerPoint Tools PowerPoint Duotone
+
+on:
+  push:
+    branches:
+      - agent/powerpoint-tools-v3-helper
+    paths:
+      - 'powerpoint-tools-vsto/src/Pricop.PowerPointTools/**'
+      - 'powerpoint-tools-vsto/installer/**'
+      - 'powerpoint-tools-vsto/tools/**'
+      - '.github/workflows/build-powerpoint-tools-powerpoint-duotone.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-2022
+    defaults:
+      run:
+        working-directory: powerpoint-tools-vsto
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Create VSTO signing certificate
+        id: cert
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory -Force -Path .\installer\assets | Out-Null
+          $cert = New-SelfSignedCertificate -Type CodeSigningCert -Subject "CN=Pricop PowerPoint Tools" -CertStoreLocation "Cert:\CurrentUser\My" -NotAfter (Get-Date).AddYears(3)
+          Export-Certificate -Cert $cert -FilePath .\installer\assets\publisher.cer | Out-Null
+          "thumbprint=$($cert.Thumbprint)" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          ('#define PublisherThumbprint "' + $cert.Thumbprint + '"') | Set-Content .\installer\CertificateInfo.iss
+
+      - name: Build PowerPoint VSTO add-in
+        shell: powershell
+        run: |
+          $thumb = "${{ steps.cert.outputs.thumbprint }}"
+          msbuild .\src\Pricop.PowerPointTools\Pricop.PowerPointTools.csproj /t:Build /p:Configuration=Release /p:Platform=AnyCPU /p:SignManifests=true /p:ManifestCertificateThumbprint=$thumb /v:minimal
+          if (!(Test-Path .\src\Pricop.PowerPointTools\bin\Release\Pricop.PowerPointTools.vsto)) { throw "VSTO manifest missing" }
+
+      - name: Generate installer icon
+        shell: powershell
+        run: .\tools\GenerateAssets.ps1
+
+      - name: Install Inno Setup
+        shell: powershell
+        run: choco install innosetup --no-progress -y
+
+      - name: Build PowerPoint Setup.exe
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory -Force -Path .\dist-duotone | Out-Null
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" /O".\dist-duotone" .\installer\PricopPowerPointTools.iss
+          if (!(Test-Path .\dist-duotone\PricopPowerPointTools-Setup.exe)) { throw "Setup.exe missing" }
+
+      - name: Upload PowerPoint installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: PricopPowerPointTools-PowerPoint-Duotone-v3.1
+          path: powerpoint-tools-vsto/dist-duotone/PricopPowerPointTools-Setup.exe
+          if-no-files-found: error
