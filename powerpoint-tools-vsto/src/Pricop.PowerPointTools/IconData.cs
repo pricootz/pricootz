@@ -7,10 +7,10 @@ namespace Pricop.PowerPointTools
 {
     internal static class IconData
     {
-        private static readonly Color Accent = Color.FromArgb(32, 224, 194);
-        private static readonly Color AccentMuted = Color.FromArgb(120, 32, 224, 194);
-        private static readonly Color Ink = Color.FromArgb(248, 250, 252);
-        private static readonly Color Secondary = Color.FromArgb(54, 86, 102);
+        private static readonly Color Accent = Color.FromArgb(20, 184, 166);
+        private static readonly Color AccentMuted = Color.FromArgb(115, 20, 184, 166);
+        private static readonly Color Ink = Color.FromArgb(31, 41, 55);
+        private static readonly Color Secondary = Color.FromArgb(100, 116, 139);
 
         public static object GetPicture(string key)
         {
