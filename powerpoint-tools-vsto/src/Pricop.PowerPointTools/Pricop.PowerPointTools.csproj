@@ -18,7 +18,7 @@
     <OfficeApplicationDescription>PowerPoint productivity tools</OfficeApplicationDescription>
     <LoadBehavior>3</LoadBehavior>
     <OfficeApplication>PowerPoint</OfficeApplication>
-    <ApplicationVersion>3.0.0.0</ApplicationVersion>
+    <ApplicationVersion>3.1.0.0</ApplicationVersion>
     <AutoIncrementApplicationRevision>false</AutoIncrementApplicationRevision>
     <UpdateEnabled>false</UpdateEnabled>
     <PublisherName>Pricop</PublisherName>
