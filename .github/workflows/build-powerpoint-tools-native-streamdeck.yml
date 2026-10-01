@@ -1,0 +1,82 @@
+name: Build Pricop PowerPoint Tools Stream Deck Native
+
+on:
+  push:
+    branches:
+      - agent/powerpoint-tools-v3-helper
+    paths:
+      - 'powerpoint-tools-vsto/streamdeck-native/**'
+      - 'powerpoint-tools-vsto/streamdeck/com.pricop.powerpoint-tools.sdPlugin/**'
+      - '.github/workflows/build-powerpoint-tools-native-streamdeck.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-2022
+    defaults:
+      run:
+        working-directory: powerpoint-tools-vsto
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build native Stream Deck plugin
+        shell: powershell
+        run: |
+          msbuild .\streamdeck-native\Pricop.PowerPointTools.StreamDeck.csproj /t:Restore,Build /p:Configuration=Release /v:minimal
+          $exe = ".\streamdeck-native\bin\Release\net48\Pricop.PowerPointTools.StreamDeck.exe"
+          if (!(Test-Path $exe)) { throw "Native Stream Deck EXE missing" }
+          & $exe --self-test
+          if ($LASTEXITCODE -ne 0) { throw "Native plugin self-test failed" }
+
+      - name: Test native Stream Deck WebSocket protocol
+        shell: powershell
+        run: |
+          python -m pip install websockets==15.0.1
+          python .\streamdeck-native\test_fake_streamdeck.py
+          $log = Join-Path $env:LOCALAPPDATA "Pricop\PowerPointTools\streamdeck-native.log"
+          if (!(Test-Path $log)) { throw "Native plugin startup log was not created" }
+          Get-Content $log
+
+      - name: Package native plugin
+        shell: powershell
+        working-directory: powerpoint-tools-vsto/streamdeck
+        run: |
+          .\scripts\GeneratePluginIcons.ps1
+
+          $source = "..\streamdeck-native\bin\Release\net48\Pricop.PowerPointTools.StreamDeck.exe"
+          $dest = ".\com.pricop.powerpoint-tools.sdPlugin\bin\Pricop.PowerPointTools.StreamDeck.exe"
+          New-Item -ItemType Directory -Force -Path (Split-Path $dest) | Out-Null
+          Copy-Item $source $dest -Force
+
+          if (!(Test-Path $dest)) { throw "Native EXE not copied into plugin" }
+
+          npm install -g @elgato/cli@latest
+          New-Item -ItemType Directory -Force -Path .\dist-native | Out-Null
+          streamdeck pack .\com.pricop.powerpoint-tools.sdPlugin --output .\dist-native --force --no-update-check
+
+          $plugin = Get-ChildItem .\dist-native\*.streamDeckPlugin | Select-Object -First 1
+          if ($null -eq $plugin) { throw "Plugin package missing" }
+
+          Copy-Item $plugin.FullName ".\dist-native\plugin-check.zip" -Force
+          Expand-Archive ".\dist-native\plugin-check.zip" ".\dist-native\plugin-check" -Force
+          $packed = Get-ChildItem ".\dist-native\plugin-check" -Recurse -Filter "Pricop.PowerPointTools.StreamDeck.exe" | Select-Object -First 1
+          if ($null -eq $packed) { throw "Packed plugin does not contain native EXE" }
+
+          $manifest = Get-ChildItem ".\dist-native\plugin-check" -Recurse -Filter "manifest.json" | Select-Object -First 1
+          $json = Get-Content $manifest.FullName -Raw | ConvertFrom-Json
+          if ($json.CodePath -ne "bin/Pricop.PowerPointTools.StreamDeck.exe") { throw "Manifest CodePath is not native EXE" }
+          if ($null -ne $json.Nodejs) { throw "Native plugin should not declare Nodejs runtime" }
+
+          Remove-Item ".\dist-native\plugin-check.zip" -Force
+          Remove-Item ".\dist-native\plugin-check" -Recurse -Force
+
+      - name: Upload native Stream Deck plugin
+        uses: actions/upload-artifact@v4
+        with:
+          name: PricopPowerPointTools-StreamDeck-Native-v4
+          path: powerpoint-tools-vsto/streamdeck/dist-native/*.streamDeckPlugin
+          if-no-files-found: error
