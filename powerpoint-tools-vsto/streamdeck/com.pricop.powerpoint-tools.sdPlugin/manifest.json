@@ -1,7 +1,7 @@
 {
   "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
   "Name": "Pricop PowerPoint Tools",
-  "Version": "4.0.0.0",
+  "Version": "4.1.0.0",
   "Author": "Pricop",
   "UUID": "com.pricop.powerpoint-tools",
   "Description": "Plugin Windows nativo per controllare direttamente Microsoft PowerPoint 365 da Stream Deck.",
