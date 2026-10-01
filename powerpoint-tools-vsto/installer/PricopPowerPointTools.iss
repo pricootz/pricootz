@@ -1,7 +1,7 @@
 #include "CertificateInfo.iss"
 
 #define MyAppName "Pricop PowerPoint Tools"
-#define MyAppVersion "3.0.0"
+#define MyAppVersion "3.1.0"
 #define MyAppPublisher "Pricop"
 #define MyAppId "{{A8A9B27F-58F2-4CC5-ACD8-CF4AE4551399}"
 
@@ -24,7 +24,7 @@ UninstallDisplayIcon={app}\app.ico
 ArchitecturesAllowed=x86 x64compatible
 CloseApplications=yes
 RestartApplications=no
-VersionInfoVersion=3.0.0.0
+VersionInfoVersion=3.1.0.0
 VersionInfoCompany=Pricop
 VersionInfoDescription=Pricop PowerPoint Tools VSTO Installer
 VersionInfoProductName=Pricop PowerPoint Tools
