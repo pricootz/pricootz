@@ -24,7 +24,7 @@ namespace Pricop.PowerPointTools.StreamDeck
         private static int Main(string[] args)
         {
             Directory.CreateDirectory(LogDirectory);
-            Log("=== START 4.0.0 ===");
+            Log("=== START 4.1.0 ===");
             Log("Args: " + string.Join(" ", args ?? new string[0]));
 
             try
