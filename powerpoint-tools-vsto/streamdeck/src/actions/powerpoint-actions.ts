@@ -112,5 +112,5 @@ export class CleanBoxesAction extends PowerPointCommandAction {
 
 @action({ UUID: "com.pricop.powerpoint-tools.test-connection" })
 export class TestConnectionAction extends PowerPointCommandAction {
-  protected command = "ping";
+  protected command = "test-connection";
 }
