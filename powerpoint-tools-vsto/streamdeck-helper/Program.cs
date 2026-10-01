@@ -191,25 +191,25 @@ namespace Pricop.PowerPointTools.Helper
             switch (command)
             {
                 case "align-left":
-                    return WithShapes(app, 2, r => r.Align(0, 0));
+                    return WithShapes((object)app, 2, r => r.Align(0, 0));
                 case "align-center":
-                    return WithShapes(app, 2, r => r.Align(1, 0));
+                    return WithShapes((object)app, 2, r => r.Align(1, 0));
                 case "align-right":
-                    return WithShapes(app, 2, r => r.Align(2, 0));
+                    return WithShapes((object)app, 2, r => r.Align(2, 0));
                 case "align-top":
-                    return WithShapes(app, 2, r => r.Align(3, 0));
+                    return WithShapes((object)app, 2, r => r.Align(3, 0));
                 case "align-middle":
-                    return WithShapes(app, 2, r => r.Align(4, 0));
+                    return WithShapes((object)app, 2, r => r.Align(4, 0));
                 case "align-bottom":
-                    return WithShapes(app, 2, r => r.Align(5, 0));
+                    return WithShapes((object)app, 2, r => r.Align(5, 0));
 
                 case "distribute-horizontal":
-                    return WithShapes(app, 3, r => r.Distribute(0, 0));
+                    return WithShapes((object)app, 3, r => r.Distribute(0, 0));
                 case "distribute-vertical":
-                    return WithShapes(app, 3, r => r.Distribute(1, 0));
+                    return WithShapes((object)app, 3, r => r.Distribute(1, 0));
 
                 case "same-width":
-                    return WithShapes(app, 2, r =>
+                    return WithShapes((object)app, 2, r =>
                     {
                         float width = Convert.ToSingle(r[1].Width);
                         for (int i = 2; i <= Convert.ToInt32(r.Count); i++)
@@ -217,7 +217,7 @@ namespace Pricop.PowerPointTools.Helper
                     });
 
                 case "same-height":
-                    return WithShapes(app, 2, r =>
+                    return WithShapes((object)app, 2, r =>
                     {
                         float height = Convert.ToSingle(r[1].Height);
                         for (int i = 2; i <= Convert.ToInt32(r.Count); i++)
@@ -225,7 +225,7 @@ namespace Pricop.PowerPointTools.Helper
                     });
 
                 case "same-size":
-                    return WithShapes(app, 2, r =>
+                    return WithShapes((object)app, 2, r =>
                     {
                         float width = Convert.ToSingle(r[1].Width);
                         float height = Convert.ToSingle(r[1].Height);
@@ -237,7 +237,7 @@ namespace Pricop.PowerPointTools.Helper
                     });
 
                 case "rectangle":
-                    return WithShapes(app, 1, r =>
+                    return WithShapes((object)app, 1, r =>
                     {
                         for (int i = 1; i <= Convert.ToInt32(r.Count); i++)
                             if (Convert.ToInt32(r[i].Type) == 1)
@@ -245,7 +245,7 @@ namespace Pricop.PowerPointTools.Helper
                     });
 
                 case "rounded-rectangle":
-                    return WithShapes(app, 1, r =>
+                    return WithShapes((object)app, 1, r =>
                     {
                         for (int i = 1; i <= Convert.ToInt32(r.Count); i++)
                             if (Convert.ToInt32(r[i].Type) == 1)
@@ -253,14 +253,14 @@ namespace Pricop.PowerPointTools.Helper
                     });
 
                 case "shadow-off":
-                    return WithShapes(app, 1, r =>
+                    return WithShapes((object)app, 1, r =>
                     {
                         for (int i = 1; i <= Convert.ToInt32(r.Count); i++)
                             r[i].Shadow.Visible = 0;
                     });
 
                 case "shadow-on":
-                    return WithShapes(app, 1, r =>
+                    return WithShapes((object)app, 1, r =>
                     {
                         for (int i = 1; i <= Convert.ToInt32(r.Count); i++)
                         {
@@ -273,14 +273,14 @@ namespace Pricop.PowerPointTools.Helper
                     });
 
                 case "border-off":
-                    return WithShapes(app, 1, r =>
+                    return WithShapes((object)app, 1, r =>
                     {
                         for (int i = 1; i <= Convert.ToInt32(r.Count); i++)
                             r[i].Line.Visible = 0;
                     });
 
                 case "border-on":
-                    return WithShapes(app, 1, r =>
+                    return WithShapes((object)app, 1, r =>
                     {
                         for (int i = 1; i <= Convert.ToInt32(r.Count); i++)
                         {
@@ -290,7 +290,7 @@ namespace Pricop.PowerPointTools.Helper
                     });
 
                 case "match-style":
-                    return WithShapes(app, 2, r =>
+                    return WithShapes((object)app, 2, r =>
                     {
                         r[1].PickUp();
                         for (int i = 2; i <= Convert.ToInt32(r.Count); i++)
@@ -298,7 +298,7 @@ namespace Pricop.PowerPointTools.Helper
                     });
 
                 case "clean-boxes":
-                    return WithShapes(app, 1, r =>
+                    return WithShapes((object)app, 1, r =>
                     {
                         float height = Convert.ToSingle(r[1].Height);
                         for (int i = 1; i <= Convert.ToInt32(r.Count); i++)
@@ -319,8 +319,9 @@ namespace Pricop.PowerPointTools.Helper
             }
         }
 
-        private static int WithShapes(dynamic app, int minimum, Action<dynamic> action)
+        private static int WithShapes(object appObject, int minimum, Action<dynamic> action)
         {
+            dynamic app = appObject;
             dynamic window;
             try { window = app.ActiveWindow; }
             catch { return Fail(3, "ERR NO_ACTIVE_WINDOW"); }
